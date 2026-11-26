@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMF - Controle de Estoque e Vendas</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- TELA DE LOGIN (Foto 3) -->
+  <section id="tela-login" class="login">
+    <form id="form-login" class="cartao login-cartao" autocomplete="off">
+      <div class="marca">MMF</div>
+      <h1>Manoel Modas e Família</h1>
+      <p class="sub">Controle de Estoque e Vendas</p>
+      <label>Usuário <input id="login" required minlength="3" maxlength="50"></label>
+      <label>Senha <input id="senha" type="password" required minlength="6" maxlength="100"></label>
+      <button type="submit" class="botao grande">Entrar</button>
+      <p id="erro-login" class="msg erro" hidden></p>
+      <p class="dica">Acesso por perfil: Administrador ou Vendedor</p>
+    </form>
+  </section>
+
+  <!-- SISTEMA -->
+  <section id="tela-sistema" hidden>
+    <header class="topo">
+      <div class="marca pequena">MMF</div>
+      <nav id="menu">
+        <button data-tela="produtos">Produtos</button>
+        <button data-tela="venda">Nova Venda</button>
+        <button data-tela="alertas">Alertas <span id="qtd-alertas" class="badge" hidden></span></button>
+        <button data-tela="entrada">Entrada de Estoque</button>
+        <button data-tela="relatorio">Relatório</button>
+        <button data-tela="auditoria">Auditoria</button>
+      </nav>
+      <div class="usuario"><span id="usuario-nome"></span> <span id="usuario-perfil" class="perfil"></span>
+        <button id="sair" class="botao claro">Sair</button></div>
+    </header>
+
+    <main>
+      <p id="msg" class="msg" hidden></p>
+
+      <!-- PRODUTOS -->
+      <div id="tela-produtos" class="tela">
+        <h2>Produtos em estoque</h2>
+        <form id="form-produto" class="cartao linha so-admin">
+          <input id="p-nome" placeholder="Produto (ex.: Calça Jeans)" required>
+          <input id="p-cor" placeholder="Cor" required>
+          <input id="p-tam" placeholder="Tam." required class="curto">
+          <input id="p-preco" type="number" step="0.01" min="0.01" placeholder="Preço R$" required class="curto">
+          <input id="p-qtd" type="number" min="0" placeholder="Qtd." required class="curto">
+          <input id="p-min" type="number" min="0" placeholder="Mínimo" required class="curto">
+          <button class="botao">Cadastrar</button>
+        </form>
+        <table><thead><tr><th>#</th><th>Produto</th><th>Cor</th><th>Tam.</th><th>Preço</th>
+          <th>Qtd.</th><th>Mín.</th><th>Situação</th><th class="so-admin">Ações</th></tr></thead>
+          <tbody id="lista-produtos"></tbody></table>
+      </div>
+
+      <!-- NOVA VENDA (Foto 4) -->
+      <div id="tela-venda" class="tela" hidden>
+        <h2>Registrar venda</h2>
+        <div class="cartao linha">
+          <select id="v-produto"></select>
+          <input id="v-qtd" type="number" min="1" value="1" class="curto">
+          <button id="v-adicionar" class="botao">Adicionar</button>
+        </div>
+        <table><thead><tr><th>Produto</th><th>Qtd.</th><th>Preço un.</th><th>Subtotal</th><th></th></tr></thead>
+          <tbody id="carrinho"></tbody></table>
+        <div class="cartao linha fim">
+          <label>Pagamento
+            <select id="v-pagamento"><option>Dinheiro</option><option>PIX</option>
+              <option>Cartão Débito</option><option>Cartão Crédito</option></select></label>
+          <strong class="total">Total: <span id="v-total">R$ 0,00</span></strong>
+          <button id="v-finalizar" class="botao grande">Finalizar venda</button>
+        </div>
+      </div>
+
+      <!-- ALERTAS (Foto 5) -->
+      <div id="tela-alertas" class="tela" hidden>
+        <h2>Alerta de estoque mínimo</h2>
+        <p class="sub">Produtos com quantidade igual ou abaixo do mínimo cadastrado. Repor com o fornecedor.</p>
+        <table><thead><tr><th>Produto</th><th>Cor</th><th>Tam.</th><th>Qtd. atual</th><th>Mínimo</th></tr></thead>
+          <tbody id="lista-alertas"></tbody></table>
+      </div>
+
+      <!-- ENTRADA DE ESTOQUE -->
+      <div id="tela-entrada" class="tela" hidden>
+        <h2>Entrada de mercadoria / ajuste</h2>
+        <form id="form-entrada" class="cartao linha">
+          <select id="e-produto"></select>
+          <select id="e-tipo"><option value="ENTRADA">Entrada</option><option value="AJUSTE">Ajuste</option></select>
+          <input id="e-qtd" type="number" placeholder="Qtd. (ajuste pode ser negativo)" required>
+          <input id="e-motivo" placeholder="Motivo / nota do fornecedor">
+          <button class="botao">Registrar</button>
+        </form>
+      </div>
+
+      <!-- RELATÓRIO -->
+      <div id="tela-relatorio" class="tela" hidden>
+        <h2>Relatório de vendas</h2>
+        <form id="form-relatorio" class="cartao linha">
+          <label>De <input id="r-inicio" type="date" required></label>
+          <label>Até <input id="r-fim" type="date" required></label>
+          <button class="botao">Gerar</button>
+        </form>
+        <div id="resultado-relatorio"></div>
+      </div>
+
+      <!-- AUDITORIA (Foto 6) -->
+      <div id="tela-auditoria" class="tela" hidden>
+        <h2>Log de auditoria</h2>
+        <div class="cartao linha">
+          <span class="sub">Registro de todas as ações críticas: quem fez, o quê, quando e de onde.</span>
+          <button id="fazer-backup" class="botao claro">Fazer backup agora</button>
+        </div>
+        <table><thead><tr><th>#</th><th>Data/hora</th><th>Usuário</th><th>Ação</th><th>Detalhe</th>
+          <th>Antes</th><th>Depois</th><th>IP</th></tr></thead>
+          <tbody id="lista-auditoria"></tbody></table>
+      </div>
+    </main>
+    <footer>MMF – Manoel Modas e Família · Projeto Integrador II – ADS/FASUL · Edson José da Silva</footer>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

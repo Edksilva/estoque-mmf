@@ -1,0 +1,81 @@
+// ETAPA 3 - Diagrama Entidade-Relacionamento do banco de dados (MMF)
+// Gerar a imagem:  dot -Tpng docs/diagrama_banco.dot -o docs/diagrama_banco.png
+digraph MMF {
+  graph [rankdir=LR, bgcolor="white", pad=0.4, nodesep=0.6, ranksep=1.1,
+         label="MMF – Manoel Modas e Família · Diagrama do Banco de Dados (Projeto Integrador II)",
+         labelloc=t, fontname="Helvetica-Bold", fontsize=18];
+  node [shape=plain, fontname="Helvetica", fontsize=12];
+  edge [fontname="Helvetica", fontsize=11, color="#1f3a5f", arrowhead=crow, arrowtail=tee, dir=both];
+
+  usuarios [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#1f3a5f"><font color="white"><b>usuarios</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">nome VARCHAR(100)</td></tr>
+    <tr><td align="left">login VARCHAR(50) UNIQUE</td></tr>
+    <tr><td align="left" bgcolor="#fdecea">senha_hash VARCHAR(100) (bcrypt)</td></tr>
+    <tr><td align="left" bgcolor="#fdecea">perfil (Administrador | Vendedor)</td></tr>
+    <tr><td align="left">ativo BOOLEAN</td></tr></table>>];
+
+  produtos [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#1f3a5f"><font color="white"><b>produtos</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">nome VARCHAR(100)</td></tr>
+    <tr><td align="left">cor VARCHAR(30)</td></tr>
+    <tr><td align="left">tamanho VARCHAR(10)</td></tr>
+    <tr><td align="left">preco NUMERIC(10,2)</td></tr>
+    <tr><td align="left">quantidade INTEGER</td></tr>
+    <tr><td align="left" bgcolor="#fff4e5">estoque_minimo INTEGER</td></tr>
+    <tr><td align="left">ativo BOOLEAN</td></tr></table>>];
+
+  movimentacoes [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#2f5d8a"><font color="white"><b>movimentacoes</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">🔗 produto_id → produtos</td></tr>
+    <tr><td align="left">🔗 usuario_id → usuarios</td></tr>
+    <tr><td align="left">tipo (ENTRADA | SAIDA | AJUSTE)</td></tr>
+    <tr><td align="left">quantidade INTEGER</td></tr>
+    <tr><td align="left">motivo VARCHAR(200)</td></tr>
+    <tr><td align="left">data_hora DATETIME</td></tr></table>>];
+
+  vendas [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#2f5d8a"><font color="white"><b>vendas</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">🔗 usuario_id → usuarios</td></tr>
+    <tr><td align="left">total NUMERIC(10,2)</td></tr>
+    <tr><td align="left">forma_pagamento VARCHAR(20)</td></tr>
+    <tr><td align="left">data_hora DATETIME</td></tr></table>>];
+
+  itens_venda [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#2f5d8a"><font color="white"><b>itens_venda</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">🔗 venda_id → vendas</td></tr>
+    <tr><td align="left">🔗 produto_id → produtos</td></tr>
+    <tr><td align="left">quantidade INTEGER</td></tr>
+    <tr><td align="left">preco_unitario NUMERIC(10,2)</td></tr></table>>];
+
+  log_auditoria [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="6">
+    <tr><td bgcolor="#c0392b"><font color="white"><b>log_auditoria</b></font></td></tr>
+    <tr><td align="left"><b>🔑 id</b> INTEGER</td></tr>
+    <tr><td align="left">🔗 usuario_id → usuarios</td></tr>
+    <tr><td align="left">usuario_login VARCHAR(50)</td></tr>
+    <tr><td align="left">acao VARCHAR(50)</td></tr>
+    <tr><td align="left">detalhe TEXT</td></tr>
+    <tr><td align="left">valor_anterior TEXT</td></tr>
+    <tr><td align="left">valor_novo TEXT</td></tr>
+    <tr><td align="left">ip VARCHAR(45)</td></tr>
+    <tr><td align="left">data_hora DATETIME</td></tr></table>>];
+
+  usuarios -> vendas [label=" registra  1:N "];
+  usuarios -> movimentacoes [label=" executa  1:N "];
+  usuarios -> log_auditoria [label=" gera  1:N "];
+  vendas -> itens_venda [label=" contém  1:N "];
+  produtos -> itens_venda [label=" vendido em  1:N "];
+  produtos -> movimentacoes [label=" movimentado em  1:N "];
+
+  legenda [label=<<table border="0" cellborder="0" cellspacing="2" cellpadding="3">
+    <tr><td align="left"><b>Legenda</b></td></tr>
+    <tr><td align="left">🔑 chave primária · 🔗 chave estrangeira</td></tr>
+    <tr><td align="left" bgcolor="#fdecea">Segurança: senha em hash e perfil de acesso</td></tr>
+    <tr><td align="left" bgcolor="#fff4e5">Gatilho do alerta de estoque mínimo</td></tr>
+    <tr><td align="left"><font color="#c0392b"><b>Tabela vermelha: trilha de auditoria</b></font></td></tr></table>>];
+}
